@@ -1,8 +1,5 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:riverpod_test_base/app_configs/configs.dart';
@@ -47,53 +44,57 @@ abstract class AppDioInterceptor {
             return handler.next(response);
           },
           onError: (DioError err, ErrorInterceptorHandler handler) async {
-            final httpMethod = err.requestOptions.method.toUpperCase();
-            final url = err.requestOptions.baseUrl + err.requestOptions.path;
-            debugPrint('\tMETHOD: $httpMethod'); // GET
-            debugPrint('\tURL: $url'); // URL
-            if (err.response?.statusCode == 401 || err.response?.statusCode == 403) {
-              /// todo: setup refresh token
-              try {
-                final Dio dioRefresh = Dio(
-                  BaseOptions(
-                    headers: <String, String>{
-                      "content-type": 'application/x-www-form-urlencoded',
-                    },
-                  ),
-                );
-              } on DioError catch (e) {
-                handler.next(e);
-              }
-            }
-            if (err.response != null) {
-              debugPrint('\tStatus code: ${err.response!.statusCode}');
-              if (err.response!.data != null) {
-                final body = err.response!.data as Map<String, dynamic>; //API Dependant
-                final code = body['status_code'] as int;
-                final message = err.response!.statusMessage as String; //API Dependant
-                debugPrint('\tException: $code');
-                debugPrint('\tException2: $message');
-                if (code == 500) {
-                  sharedPreferencesService.removeAll();
-                }
-                if (body.containsKey('data')) {
-                  //API Dependant
-                  final data = body['data'] as List<Object?>;
-                  if (data.isNotEmpty) {
-                    debugPrint('\tData: $data');
-                  }
-                }
-              } else {
-                debugPrint('${err.response!.data}');
-              }
-            } else if (err.error is SocketException) {
-              const message = 'No internet connectivity';
-              debugPrint('\tException: FetchDataException');
-              debugPrint('\tMessage: $message');
-            } else {
-              debugPrint('\tUnknown Error');
-            }
-          },
+            //console.error(err);
+            return handler.next(err);
+          }
+          // onError: (DioError err, ErrorInterceptorHandler handler) async {
+          //   final httpMethod = err.requestOptions.method.toUpperCase();
+          //   final url = err.requestOptions.baseUrl + err.requestOptions.path;
+          //   debugPrint('\tMETHOD: $httpMethod'); // GET
+          //   debugPrint('\tURL: $url'); // URL
+          //   // if (err.response?.statusCode == 401 || err.response?.statusCode == 403) {
+          //   //   /// todo: setup refresh token
+          //   //   try {
+          //   //     final Dio dioRefresh = Dio(
+          //   //       BaseOptions(
+          //   //         headers: <String, String>{
+          //   //           "content-type": 'application/x-www-form-urlencoded',
+          //   //         },
+          //   //       ),
+          //   //     );
+          //   //   } on DioError catch (e) {
+          //   //     handler.next(e);
+          //   //   }
+          //   // }
+          //   if (err.response != null) {
+          //     debugPrint('\tStatus code: ${err.response!.statusCode}');
+          //     if (err.response!.data != null) {
+          //       final body = err.response!.data as Map<String, dynamic>; //API Dependant
+          //       final code = body['status_code'] as int;
+          //       final message = err.response!.statusMessage as String; //API Dependant
+          //       debugPrint('\tException: $code');
+          //       debugPrint('\tException2: $message');
+          //       if (code == 500) {
+          //         sharedPreferencesService.removeAll();
+          //       }
+          //       if (body.containsKey('data')) {
+          //         //API Dependant
+          //         final data = body['data'] as List<Object?>;
+          //         if (data.isNotEmpty) {
+          //           debugPrint('\tData: $data');
+          //         }
+          //       }
+          //     } else {
+          //       debugPrint('${err.response!.data}');
+          //     }
+          //   } else if (err.error is SocketException) {
+          //     const message = 'No internet connectivity';
+          //     debugPrint('\tException: FetchDataException');
+          //     debugPrint('\tMessage: $message');
+          //   } else {
+          //     debugPrint('\tUnknown Error');
+          //   }
+          // },
         ),
         RetryInterceptor(
           dio: dio,

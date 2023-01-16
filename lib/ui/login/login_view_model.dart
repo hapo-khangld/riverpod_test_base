@@ -21,6 +21,7 @@ class LoginViewModel extends ChangeNotifier {
     ref.read(viewStateProvider.notifier).state = ViewState.loading;
 
     final userData = await authenticationRepositoryImpl.userLogin(code: code, password: password);
+    notifyListeners();
     return userData;
   }
 }

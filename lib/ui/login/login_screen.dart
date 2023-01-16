@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:riverpod_test_base/router/route_names.dart';
 import 'package:riverpod_test_base/ui/login/login_view_model.dart';
 
 class SignInScreen extends ConsumerWidget {
@@ -126,7 +128,8 @@ class SignInScreen extends ConsumerWidget {
                   viewModel.then(
                     (value) => value.fold(
                       (l) => debugPrint('failed'),
-                      (r) => debugPrint('oke'),
+                      //(r) => context.go('/main/${r.userModel.name}'),
+                      (r) => context.goNamed(RouteNames.mainScreen, params: {"userName" : '${r.userModel.name}'}),
                     ),
                   );
                 },
